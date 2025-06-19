@@ -16,10 +16,9 @@ import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
 
-
     private val songs = mutableListOf<String>()
     private val artists = mutableListOf<String>()
-    private val ratings = mutableListOf<Int>() // Corrected type
+    private val ratings = mutableListOf<Int>()
     private val genres = mutableListOf<String>()
 
     @SuppressLint("MissingInflatedId")
@@ -30,17 +29,15 @@ class MainActivity : AppCompatActivity() {
         val createBtn = findViewById<Button>(R.id.createbtn)
         val detailedBtn = findViewById<Button>(R.id.detailedbtn)
         val exitButton = findViewById<Button>(R.id.Exitbtn)
-        val imageView = findViewById<ImageView>(R.id.imageView)
+        // val imageView = findViewById<ImageView>(R.id.imageView) // Only if you are using this ImageView
 
-        //Create button used to add songs to the playlist
         createBtn.setOnClickListener {
             showAddPlaylistDialog()
         }
 
-        //Detailed view button used to view the playlist
         detailedBtn.setOnClickListener {
             if (songs.isNotEmpty()) {
-                val intent = Intent(this, detailedView::class.java)
+                val intent = Intent(this, detailedView::class.java) // Make sure detailedView class exists
                 intent.putStringArrayListExtra("song", ArrayList(songs))
                 intent.putStringArrayListExtra("artist", ArrayList(artists))
                 intent.putIntegerArrayListExtra("rating", ArrayList(ratings))
@@ -48,13 +45,13 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             } else {
                 Snackbar.make(
-                    detailedBtn,
+                    detailedBtn, // Anchor view for the Snackbar
                     "Playlist is empty. Add items first.",
                     Snackbar.LENGTH_SHORT
                 ).show()
             }
         }
-        //Exit button used to exit the app completely
+
         exitButton.setOnClickListener {
             finishAffinity()
         }
@@ -64,6 +61,7 @@ class MainActivity : AppCompatActivity() {
     private fun showAddPlaylistDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Add New Song")
+
 
         val view = layoutInflater.inflate(R.layout.dialog_add_playlist, null)
         val songEditText: EditText = view.findViewById(R.id.songtxt)
@@ -89,7 +87,6 @@ class MainActivity : AppCompatActivity() {
             }
 
             val ratingInputInt = ratingStringInput.toIntOrNull()
-            // Validate rating is between 1 and 5 (inclusive)
             if (ratingInputInt == null || ratingInputInt !in 1..5) {
                 Snackbar.make(
                     findViewById(android.R.id.content),
@@ -101,6 +98,21 @@ class MainActivity : AppCompatActivity() {
 
             // Add to the class member lists
             this.songs.add(songInput)
+            this.artists.add(artistInput)
+            this.ratings.add(ratingInputInt)
+            this.genres.add(genreInput)
+
+            Snackbar.make(
+                findViewById(android.R.id.content),
+                "'$songInput' added to playlist.",
+                Snackbar.LENGTH_SHORT
+            ).show()
+
         }
+
+
+        // Create and show the AlertDialog
+        val dialog = builder.create()
+        dialog.show()
     }
-    }
+}

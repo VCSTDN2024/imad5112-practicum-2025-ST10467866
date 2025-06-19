@@ -8,14 +8,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import kotlin.system.exitProcess
 
 class detailedView : AppCompatActivity() {
 
     private lateinit var songs: ArrayList<String>
     private lateinit var artists: ArrayList<String>
-    private lateinit var rating: ArrayList<Int>
-    private lateinit var genre: ArrayList<String>
+    private lateinit var ratings: ArrayList<Int>
+    private lateinit var genres: ArrayList<String>
     private lateinit var displayTextView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,74 +23,81 @@ class detailedView : AppCompatActivity() {
         setContentView(R.layout.activity_deatailed_view)
 
 
-        songs = intent.getStringArrayListExtra("item") ?: arrayListOf()
-        artists = intent.getStringArrayListExtra("category") ?: arrayListOf()
-        rating = intent.getIntegerArrayListExtra("quantity") ?: arrayListOf()
-        genre = intent.getStringArrayListExtra("comments") ?: arrayListOf()
+        songs = intent.getStringArrayListExtra("song") ?: arrayListOf()
+        artists = intent.getStringArrayListExtra("artist") ?: arrayListOf()
+        ratings = intent.getIntegerArrayListExtra("rating") ?: arrayListOf()
+        genres = intent.getStringArrayListExtra("genre") ?: arrayListOf()
         displayTextView = findViewById(R.id.displaytextView)
 
-        val ViewButton: Button = findViewById(R.id.viewbtn)
-        val AverageRatingButton: Button = findViewById(R.id.avgbtn)
+        val viewPlaylistButton: Button = findViewById(R.id.viewbtn)
+        val averageRatingButton: Button = findViewById(R.id.avgbtn)
         val returnButton: Button = findViewById(R.id.returnbtn)
 
-        ViewButton.setOnClickListener {
-            displayDetailedView()
+        viewPlaylistButton.setOnClickListener {
+            displayPlaylistDetails()
         }
 
-        AverageRatingButton.setOnClickListener {
-            displayAverageRating()
+        averageRatingButton.setOnClickListener {
+            displayAverageRatingWithDetails()
         }
 
         returnButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
+            finish()
         }
-
     }
 
-    private fun displayDetailedView() {
+    private fun displayPlaylistDetails() {
         val stringBuilder = StringBuilder()
         if (songs.isNotEmpty()) {
+            stringBuilder.append("--- Full Playlist Details ---\n\n")
             for (i in songs.indices) {
-                stringBuilder.append("Item: ${songs[i]}\n")
-                stringBuilder.append("Category: ${artists[i]}\n")
-                stringBuilder.append("Quantity: ${rating[i]}\n")
-                stringBuilder.append("Comments: ${genre[i]}\n\n")
+                val songName = songs.getOrNull(i) ?: "N/A"
+                val artistName = artists.getOrNull(i) ?: "N/A"
+                val songRating = ratings.getOrNull(i)?.toString() ?: "N/A"
+                val songGenre = genres.getOrNull(i) ?: "N/A"
+
+                stringBuilder.append("Song: $songName\n")
+                stringBuilder.append("Artist: $artistName\n")
+                stringBuilder.append("Rating: $songRating/5\n")
+                stringBuilder.append("Genre: $songGenre\n\n")
             }
             displayTextView.text = stringBuilder.toString()
         } else {
-            displayTextView.text = "Playlist is empty."
+            displayTextView.text = "Playlist is empty. No details to display."
         }
     }
-    private fun displayAverageRating() {
-        if (rating.isNotEmpty()) {
+
+    private fun displayAverageRatingWithDetails() {
+        if (ratings.isNotEmpty()) {
             var sumOfRatings = 0
-            for (r in rating) {
+            for (r in ratings) {
                 sumOfRatings += r
             }
-            // Calculate average
-            val average = if (rating.isEmpty()) 0.0 else sumOfRatings.toDouble() / rating.size
-
-            // Format the average to one or two decimal places for better readability
+            val average = sumOfRatings.toDouble() / ratings.size
             val formattedAverage = String.format("%.1f", average)
 
             val stringBuilder = StringBuilder()
-            stringBuilder.append("--- Playlist Ratings ---\n\n")
+            stringBuilder.append("--- Playlist Song Ratings ---\n\n")
 
             for (i in songs.indices) {
-                if (i < artists.size && i < rating.size) {
-                    stringBuilder.append("Song: ${songs[i]}\n")
-                    stringBuilder.append("Artist: ${artists[i]}\n")
-                    stringBuilder.append("Rating: ${rating[i]}/5\n\n")
-                }
+                val songName = songs.getOrNull(i) ?: "N/A"
+                val artistName = artists.getOrNull(i) ?: "N/A"
+                val songRating = ratings.getOrNull(i)?.toString() ?: "N/A"
+
+                stringBuilder.append("Song: $songName\n")
+                stringBuilder.append("Artist: $artistName\n")
+                stringBuilder.append("Rating: $songRating/5\n\n")
             }
-            stringBuilder.append("--------------------------\n")
+
+            stringBuilder.append("-----------------------------------\n")
             stringBuilder.append("Average Playlist Rating: $formattedAverage/5\n")
+            stringBuilder.append("-----------------------------------\n")
 
             displayTextView.text = stringBuilder.toString()
         } else {
-            displayTextView.text = "Playlist is empty. No ratings to calculate average."
+            displayTextView.text = "Playlist is empty. No ratings available to calculate an average."
         }
     }
 }
-
